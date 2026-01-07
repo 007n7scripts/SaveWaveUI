@@ -1,7 +1,7 @@
 -- ===================================================================
--- SAVEWAVE UI LIBRARY - UKURAN GUI DIPERKECIL & LEBIH RAPI
--- Versi diperbaiki: GUI lebih kecil, proporsional, ga kebesaran lagi bro!
--- Cocok semua executor & game | Bilingual tetap ada
+-- SAVEWAVE UI LIBRARY - VERSI FIX KECIL & RAPI 2026
+-- GUI proporsional, ga kebesaran, 100% JALAN MULUS bro!
+-- Bilingual ID/EN | Update langsung ke repo lu
 -- ===================================================================
 
 local SaveWave = {}
@@ -12,19 +12,19 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- Ukuran GUI diperkecil biar ga kebesaran
-local WindowSizeX = 650  -- dari 800 jadi 650
-local WindowSizeY = 500  -- dari 600 jadi 500
+-- Ukuran GUI kecil & rapi
+local WindowSizeX = 650
+local WindowSizeY = 500
 
--- Bilingual (ID default)
+-- Bilingual
 local L = {
     ID = {
         Title = "SAVEWAVE HUB",
-        Subtitle = "Versi Ringkas & Rapi 2026",
-        Close = "✕",
-        Minimize = "−",
-        Loaded = "SaveWave Loaded!",
-        Welcome = "GUI lebih kecil & rapi sekarang bro!",
+        Subtitle = "Versi Kecil Rapi 2026",
+        Close = "X",
+        Minimize = "-",
+        Loaded = "SaveWave Berhasil Dimuat!",
+        Welcome = "GUI kecil rapi & jalan mulus sekarang bro!",
         TabFarm = "Farm",
         TabCombat = "Tempur",
         TabMisc = "Lainnya",
@@ -34,11 +34,11 @@ local L = {
     },
     EN = {
         Title = "SAVEWAVE HUB",
-        Subtitle = "Compact & Clean Version 2026",
-        Close = "✕",
-        Minimize = "−",
+        Subtitle = "Compact Clean Version 2026",
+        Close = "X",
+        Minimize = "-",
         Loaded = "SaveWave Loaded!",
-        Welcome = "GUI is now smaller & cleaner bro!",
+        Welcome = "GUI compact & running smooth now bro!",
         TabFarm = "Farm",
         TabCombat = "Combat",
         TabMisc = "Misc",
@@ -47,15 +47,14 @@ local L = {
         ToggleOff = "OFF"
     }
 }
-local Text = L[Config and Config.Language or "ID"] or L.ID
 
 function SaveWave:CreateWindow(Config)
     Config = Config or {}
     local language = Config.Language or "ID"
-    Text = L[language] or L.ID
+    local Text = L[language] or L.ID
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "SaveWaveCompact"
+    ScreenGui.Name = "SaveWaveFix"
     ScreenGui.Parent = PlayerGui
     ScreenGui.ResetOnSpawn = false
 
@@ -79,7 +78,6 @@ function SaveWave:CreateWindow(Config)
     Glow.ImageColor3 = Color3.fromRGB(0, 220, 255)
     Glow.ImageTransparency = 0.45
 
-    -- Title lebih kecil
     local Title = Instance.new("TextLabel")
     Title.Parent = MainFrame
     Title.Text = "🌊 " .. (Config.Name or Text.Title)
@@ -101,7 +99,6 @@ function SaveWave:CreateWindow(Config)
     Sub.TextSize = 16
     Sub.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Close & Minimize lebih kecil
     local Close = Instance.new("TextButton")
     Close.Parent = MainFrame
     Close.Size = UDim2.new(0, 35, 0, 35)
@@ -116,7 +113,6 @@ function SaveWave:CreateWindow(Config)
         ScreenGui:Destroy()
     end)
 
-    -- Tab Container lebih rapat
     local TabContainer = Instance.new("Frame")
     TabContainer.Parent = MainFrame
     TabContainer.Size = UDim2.new(1, -50, 0, 55)
@@ -128,7 +124,6 @@ function SaveWave:CreateWindow(Config)
     TabLayout.FillDirection = Enum.FillDirection.Horizontal
     TabLayout.Padding = UDim.new(0, 12)
 
-    -- Content lebih luas
     local Content = Instance.new("ScrollingFrame")
     Content.Parent = MainFrame
     Content.Position = UDim2.new(0, 25, 0, 165)
@@ -137,6 +132,240 @@ function SaveWave:CreateWindow(Config)
     Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
     Content.ScrollBarThickness = 6
     Content.ScrollBarImageColor3 = Color3.fromRGB(0, 220, 255)
+
+    local ContentLayout = Instance.new("UIListLayout")
+    ContentLayout.Parent = Content
+    ContentLayout.Padding = UDim.new(0, 12)
+
+    -- Draggable
+    local dragging = false
+    local dragStart, startPos
+    MainFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+    end)
+
+    local currentTab = nil
+
+    function SaveWave:CreateTab(name)
+        local TabBtn = Instance.new("TextButton")
+        TabBtn.Parent = TabContainer
+        TabBtn.Size = UDim2.new(0, 130, 1, 0)
+        TabBtn.BackgroundColor3 = Color3.fromRGB(15, 35, 90)
+        TabBtn.Text = name
+        TabBtn.TextColor3 = Color3.new(1,1,1)
+        TabBtn.TextSize = 16
+        local TC = Instance.new("UICorner", TabBtn)
+        TC.CornerRadius = UDim.new(0, 10)
+
+        local TabContent = Instance.new("Frame")
+        TabContent.Parent = Content
+        TabContent.Size = UDim2.new(1, 0, 0, 0)
+        TabContent.BackgroundTransparency = 1
+        TabContent.Visible = false
+
+        local TabL = Instance.new("UIListLayout")
+        TabL.Parent = TabContent
+        TabL.Padding = UDim.new(0, 10)
+
+        TabBtn.MouseButton1Click:Connect(function()
+            if currentTab then currentTab.Visible = false end
+            TabContent.Visible = true
+            currentTab = TabContent
+            for _, b in pairs(TabContainer:GetChildren()) do
+                if b:IsA("TextButton") then
+                    TweenService:Create(b, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(15, 35, 90)}):Play()
+                end
+            end
+            TweenService:Create(TabBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 180, 255)}):Play()
+        end)
+
+        local Elements = {}
+
+        function Elements:Toggle(name, default, callback)
+            local frame = Instance.new("Frame")
+            frame.Parent = TabContent
+            frame.Size = UDim2.new(1, 0, 0, 48)
+            frame.BackgroundColor3 = Color3.fromRGB(15, 35, 90)
+            local fc = Instance.new("UICorner", frame)
+            fc.CornerRadius = UDim.new(0, 10)
+
+            local label = Instance.new("TextLabel")
+            label.Parent = frame
+            label.Text = name
+            label.Size = UDim2.new(0.75, 0, 1, 0)
+            label.Position = UDim2.new(0, 15, 0, 0)
+            label.BackgroundTransparency = 1
+            label.TextColor3 = Color3.new(1,1,1)
+            label.TextSize = 16
+            label.TextXAlignment = Enum.TextXAlignment.Left
+
+            local switch = Instance.new("TextButton")
+            switch.Parent = frame
+            switch.Size = UDim2.new(0, 60, 0, 30)
+            switch.Position = UDim2.new(1, -75, 0.5, -15)
+            switch.BackgroundColor3 = default and Color3.fromRGB(0, 220, 255) or Color3.fromRGB(255, 80, 80)
+            switch.Text = default and Text.ToggleOn or Text.ToggleOff
+            switch.TextColor3 = Color3.new(1,1,1)
+            local sc = Instance.new("UICorner", switch)
+            sc.CornerRadius = UDim.new(0, 15)
+
+            local state = default or false
+            switch.MouseButton1Click:Connect(function()
+                state = not state
+                TweenService:Create(switch, TweenInfo.new(0.2), {BackgroundColor3 = state and Color3.fromRGB(0, 220, 255) or Color3.fromRGB(255, 80, 80)}):Play()
+                switch.Text = state and Text.ToggleOn or Text.ToggleOff
+                if callback then callback(state) end
+            end)
+        end
+
+        function Elements:Button(name, callback)
+            local btn = Instance.new("TextButton")
+            btn.Parent = TabContent
+            btn.Size = UDim2.new(1, 0, 0, 48)
+            btn.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
+            btn.Text = name
+            btn.TextColor3 = Color3.new(0,0,0)
+            btn.TextSize = 16
+            local bc = Instance.new("UICorner", btn)
+            bc.CornerRadius = UDim.new(0, 10)
+
+            btn.MouseButton1Click:Connect(callback or function() end)
+        end
+
+        function Elements:Slider(name, min, max, default, callback)
+            local frame = Instance.new("Frame")
+            frame.Parent = TabContent
+            frame.Size = UDim2.new(1, 0, 0, 70)
+            frame.BackgroundColor3 = Color3.fromRGB(15, 35, 90)
+            local fc = Instance.new("UICorner", frame)
+            fc.CornerRadius = UDim.new(0, 10)
+
+            local label = Instance.new("TextLabel")
+            label.Parent = frame
+            label.Text = name .. ": " .. default
+            label.Position = UDim2.new(0, 15, 0, 8)
+            label.Size = UDim2.new(1, -30, 0, 30)
+            label.BackgroundTransparency = 1
+            label.TextColor3 = Color3.new(1,1,1)
+            label.TextSize = 15
+            label.TextXAlignment = Enum.TextXAlignment.Left
+
+            local bar = Instance.new("Frame")
+            bar.Parent = frame
+            bar.Position = UDim2.new(0, 15, 1, -30)
+            bar.Size = UDim2.new(1, -30, 0, 18)
+            bar.BackgroundColor3 = Color3.fromRGB(30, 30, 60)
+            local bc = Instance.new("UICorner", bar)
+            bc.CornerRadius = UDim.new(0, 9)
+
+            local fill = Instance.new("Frame")
+            fill.Parent = bar
+            fill.Size = UDim2.new((default - min)/(max - min), 0, 1, 0)
+            fill.BackgroundColor3 = Color3.fromRGB(0, 220, 255)
+            local fc2 = Instance.new("UICorner", fill)
+            fc2.CornerRadius = UDim.new(0, 9)
+
+            local knob = Instance.new("TextButton")
+            knob.Parent = fill
+            knob.Size = UDim2.new(0, 28, 0, 28)
+            knob.Position = UDim2.new(1, -14, 0, -5)
+            knob.BackgroundColor3 = Color3.new(1,1,1)
+            knob.Text = ""
+            local kc = Instance.new("UICorner", knob)
+            kc.CornerRadius = UDim.new(1, 0)
+
+            local dragging = false
+            knob.MouseButton1Down:Connect(function() dragging = true end)
+            UserInputService.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+            end)
+            RunService.RenderStepped:Connect(function()
+                if dragging then
+                    local mouse = Player:GetMouse()
+                    local percent = math.clamp((mouse.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+                    local value = math.floor(min + (max - min) * percent)
+                    fill.Size = UDim2.new(percent, 0, 1, 0)
+                    label.Text = name .. ": " .. value
+                    if callback then callback(value) end
+                end
+            end)
+
+            -- Init callback
+            if callback then callback(default) end
+        end
+
+        return Elements
+    end
+
+    -- Open animation
+    MainFrame.Size = UDim2.new(0,0,0,0)
+    TweenService:Create(MainFrame, TweenInfo.new(0.7, Enum.EasingStyle.Back), {Size = UDim2.new(0, WindowSizeX, 0, WindowSizeY)}):Play()
+
+    -- Auto open first tab
+    task.wait(0.7)
+    if TabContainer:FindFirstChildWhichIsA("TextButton") then
+        TabContainer:FindFirstChildWhichIsA("TextButton"):MouseButton1Click()
+    end
+
+    -- Notify
+    task.spawn(function()
+        task.wait(1)
+        SaveWave:Notify(Text.Loaded, Text.Welcome, 6)
+    end)
+
+    return SaveWave
+end
+
+function SaveWave:Notify(title, content, duration)
+    duration = duration or 5
+    local notif = Instance.new("Frame")
+    notif.Size = UDim2.new(0, 300, 0, 100)
+    notif.Position = UDim2.new(1, 20, 1, -120)
+    notif.BackgroundColor3 = Color3.fromRGB(15, 35, 90)
+    notif.Parent = PlayerGui
+    local nc = Instance.new("UICorner", notif)
+    nc.CornerRadius = UDim.new(0, 12)
+
+    local ntitle = Instance.new("TextLabel")
+    ntitle.Parent = notif
+    ntitle.Text = title
+    ntitle.Size = UDim2.new(1, 0, 0, 40)
+    ntitle.BackgroundTransparency = 1
+    ntitle.TextColor3 = Color3.fromRGB(0, 220, 255)
+    ntitle.Font = Enum.Font.GothamBold
+    ntitle.TextSize = 20
+
+    local ncontent = Instance.new("TextLabel")
+    ncontent.Parent = notif
+    ncontent.Position = UDim2.new(0, 10, 0, 40)
+    ncontent.Size = UDim2.new(1, -20, 1, -50)
+    ncontent.BackgroundTransparency = 1
+    ncontent.Text = content
+    ncontent.TextColor3 = Color3.new(1,1,1)
+    ncontent.TextWrapped = true
+    ncontent.TextSize = 15
+
+    TweenService:Create(notif, TweenInfo.new(0.5), {Position = UDim2.new(1, -320, 1, -120)}):Play()
+    task.wait(duration)
+    TweenService:Create(notif, TweenInfo.new(0.5), {Position = UDim2.new(1, 20, 1, -120)}):Play()
+    task.wait(0.5)
+    notif:Destroy()
+end
+
+return SaveWave    Content.ScrollBarImageColor3 = Color3.fromRGB(0, 220, 255)
 
     local ContentLayout = Instance.new("UIListLayout")
     ContentLayout.Parent = Content
